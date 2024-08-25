@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, flash, redirect, url_for
 from .models import User
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db   ##means from __init__.py import db
-from flask_login import login_user, login_required, logout_user, current_user
+from flask_login import login_user, login_required, logout_user
 
 #hashing function is a one way function such that it does not have an inverse now what does that mean well if we have a function x maps to y
 #this is so that we arn't storing the password in plain text in the database so that if the database is compromised the passwords are not for security measures
@@ -29,6 +29,7 @@ def login():
         if user:
             if check_password_hash(user.password, password):
                 flash('Logged in successfully!', category='success')
+                login_user(user, remember=True) #remember the fact that the user is logged in until the user logs out or the session expires
                 return redirect(url_for('views.home'))
             else:
                 flash('Incorrect password, try again.', category='error')
@@ -39,8 +40,10 @@ def login():
     return render_template("login.html", boolean=True)
 
 @auth.route('/logout')
+@login_required # decorator to make sure that the user is logged in before they can log out
 def logout():
-    return '<p>Logout</p>'
+    logout_user()
+    return redirect(url_for('auth.login'))
 
 @auth.route('/sign-up', methods=['GET', 'POST'])
 def signup():
@@ -68,6 +71,7 @@ def signup():
             new_user = User(email=email, first_name=first_name, password=generate_password_hash(password1, method='pbkdf2:sha256')) #pbkdf2:sha256 is a hashing algorithm
             db.session.add(new_user) # add the new user to the database
             db.session.commit() # commit the changes to the database
+            login_user(user, remember=True)
             flash('Account Created!', category='success')
             return redirect(url_for('views.home')) #redirect us to another page
 
