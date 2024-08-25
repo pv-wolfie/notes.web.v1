@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, flash, redirect, url_for
 from .models import User
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db   ##means from __init__.py import db
-from flask_login import login_user, login_required, logout_user
+from flask_login import login_user, login_required, logout_user, current_user
 
 #hashing function is a one way function such that it does not have an inverse now what does that mean well if we have a function x maps to y
 #this is so that we arn't storing the password in plain text in the database so that if the database is compromised the passwords are not for security measures
@@ -37,7 +37,7 @@ def login():
             flash('Email does not exist. Incorrect email or Sign Up.', category='error')
 
 
-    return render_template("login.html", boolean=True)
+    return render_template("login.html", user = current_user) #reference current user to authenticate the user
 
 @auth.route('/logout')
 @login_required # decorator to make sure that the user is logged in before they can log out
@@ -75,4 +75,4 @@ def signup():
             flash('Account Created!', category='success')
             return redirect(url_for('views.home')) #redirect us to another page
 
-    return render_template("signup.html")
+    return render_template("signup.html", user = current_user)
