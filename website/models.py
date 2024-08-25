@@ -23,6 +23,6 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True) #id is the primary key
     email = db.Column(db.String(150), unique=True) #email is unique to users
     password = db.Column(db.String(150))
-    firstName = db.Column(db.String(150))
+    first_name = db.Column(db.String(150))
     notes = db.relationship('Note') #relationship between the user and notes
     
