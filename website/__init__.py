@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy #for the database
 from os import path #for the path of the database
+from flask_login import LoginManager
 
 # Create a database object
 db = SQLAlchemy() #database object
@@ -28,6 +29,15 @@ def create_app():
     from .models import User, Note
     #check if we have created the database before the script is run
     create_database(app)
+
+    # Create a login manager object
+    login_manager = LoginManager()
+    login_manager.login_view = 'auth.login' #redirect the user to the login page if they are not logged in
+    login_manager.init_app(app) 
+
+    @login_manager.user_loader
+    def load_user(id): # tell flask how we load a user
+        return User.query.get(int(id)) #get the user by the id, by default look for the primary key
 
     return app
 
